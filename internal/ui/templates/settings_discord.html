@@ -1,0 +1,47 @@
+{{define "title"}}Discord Webhooks{{end}}
+{{define "content"}}
+<h1>Discord Webhooks</h1>
+<div class="card">
+<form method="POST" action="/admin/settings/discord">
+<div class="form-group">
+<label>Webhook URL</label>
+<input type="url" name="url" required placeholder="https://discord.com/api/webhooks/...">
+</div>
+<div class="form-group">
+<label>Event Type</label>
+<select name="event_type">
+<option value="flag_generated">Flag Generated</option>
+<option value="solve">Challenge Solved</option>
+<option value="first_blood">First Blood</option>
+<option value="submission">Submission</option>
+</select>
+</div>
+<button type="submit" class="btn btn-primary">Add Webhook</button>
+</form>
+</div>
+
+{{if .Webhooks}}
+<div class="card">
+<h3>Configured Webhooks</h3>
+<table>
+<thead><tr><th>URL</th><th>Event</th><th>Status</th><th>Action</th></tr></thead>
+<tbody>
+{{range .Webhooks}}
+<tr>
+<td style="max-width:400px;overflow:hidden;text-overflow:ellipsis"><code>{{.URL}}</code></td>
+<td><code>{{.EventType}}</code></td>
+<td><span class="status-badge {{if .Enabled}}status-on{{else}}status-off{{end}}">{{if .Enabled}}Active{{else}}Disabled{{end}}</span></td>
+<td>
+<form method="POST" action="/admin/settings/discord/{{.ID}}/delete" style="display:inline" onsubmit="return confirm('Remove this webhook?')">
+<button class="btn btn-danger" type="submit">Remove</button>
+</form>
+</td>
+</tr>
+{{end}}
+</tbody>
+</table>
+{{else}}
+<p style="color:#8b949e">No webhooks configured.</p>
+{{end}}
+</div>
+{{end}}

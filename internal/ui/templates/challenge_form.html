@@ -1,0 +1,47 @@
+{{define "title"}}{{if .Challenge}}Edit{{else}}New{{end}} Challenge{{end}}
+{{define "content"}}
+<h1>{{if .Challenge}}Edit{{else}}New{{end}} Challenge</h1>
+<div class="card">
+<form method="POST" action="/admin/challenges{{if .Challenge}}/{{.Challenge.ID}}{{end}}">
+<div class="form-group">
+<label>ID</label>
+<input type="text" name="id" value="{{if .Challenge}}{{.Challenge.ID}}{{end}}" {{if .Challenge}}readonly{{end}} required placeholder="e.g. web-xss-easy">
+</div>
+<div class="form-group">
+<label>Name</label>
+<input type="text" name="name" value="{{if .Challenge}}{{.Challenge.Name}}{{end}}" required placeholder="XSS Challenge">
+</div>
+<div class="form-group">
+<label>Description</label>
+<textarea name="description">{{if .Challenge}}{{.Challenge.Description}}{{end}}</textarea>
+</div>
+<div class="form-group">
+<label>Base Flag</label>
+<input type="text" name="base_flag" value="{{if .Challenge}}{{.Challenge.BaseFlag}}{{end}}" required placeholder="CTF{abcdefg_long_base_123}">
+<p style="font-size:12px;color:#8b949e;margin-top:4px">Only a-zA-Z chars will be transformed. Numbers and symbols stay static.</p>
+</div>
+<div class="form-group">
+<label>Leet Rules (JSON override, optional)</label>
+<textarea name="leet_rules">{{if .Challenge}}{{.Challenge.LeetRules}}{{end}}</textarea>
+<p style="font-size:12px;color:#8b949e;margin-top:4px">e.g. {"a":"@","s":"$"} to override defaults</p>
+</div>
+<div class="form-group">
+<label>Questions (JSON array)</label>
+<textarea name="questions" rows="6" required>{{if .Challenge}}{{.Challenge.Questions}}{{end}}</textarea>
+<p style="font-size:12px;color:#8b949e;margin-top:4px">Format: [{"q":"Question 1?","a":"answer1"},{"q":"Question 2?","a":"answer2"}]</p>
+</div>
+<div class="form-group">
+<label>Netcat Port</label>
+<input type="number" name="netcat_port" value="{{if .Challenge}}{{.Challenge.NetcatPort}}{{end}}" required min="1024" max="65535">
+</div>
+<div class="form-group">
+<label>
+<input type="checkbox" name="enabled" value="1" {{if not .Challenge}}checked{{else if .Challenge.Enabled}}checked{{end}}>
+&nbsp; Start listener on save
+</label>
+</div>
+<button type="submit" class="btn btn-primary">{{if .Challenge}}Update{{else}}Create{{end}} Challenge</button>
+<a href="/admin/challenges" class="btn">Cancel</a>
+</form>
+</div>
+{{end}}

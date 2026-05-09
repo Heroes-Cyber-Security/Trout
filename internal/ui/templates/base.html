@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trout - {{block "title" .}}Dashboard{{end}}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}
+nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;gap:24px;align-items:center}
+nav a{color:#58a6ff;text-decoration:none;font-size:14px}
+nav a:hover{text-decoration:underline}
+nav .brand{color:#f0f6fc;font-weight:700;font-size:18px}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+h1{font-size:24px;margin-bottom:16px;color:#f0f6fc}
+h2{font-size:18px;margin-bottom:12px;color:#f0f6fc}
+.card{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:16px;margin-bottom:16px}
+.card h3{margin-bottom:8px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #30363d;font-size:14px}
+th{color:#8b949e;font-weight:600;text-transform:uppercase;font-size:12px}
+tr:hover{background:#1c2128}
+.btn{display:inline-block;padding:6px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#c9d1d9;cursor:pointer;font-size:14px;text-decoration:none}
+.btn:hover{background:#30363d}
+.btn-primary{background:#238636;border-color:#2ea043;color:#fff}
+.btn-primary:hover{background:#2ea043}
+.btn-danger{background:#da3633;border-color:#f85149;color:#fff}
+.btn-danger:hover{background:#f85149}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;margin-bottom:4px;font-size:14px;color:#8b949e}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:8px 12px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#c9d1d9;font-size:14px;font-family:inherit}
+.form-group textarea{min-height:80px;resize:vertical}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:#58a6ff}
+.status-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600}
+.status-on{background:#23863620;color:#3fb950;border:1px solid #2ea043}
+.status-off{background:#da363320;color:#f85149;border:1px solid #da3633}
+.flash{margin-bottom:16px;padding:10px 16px;border-radius:6px;font-size:14px}
+.flash-success{background:#23863620;border:1px solid #2ea043;color:#3fb950}
+.flash-error{background:#da363320;border:1px solid #f85149;color:#f85149}
+code{background:#1c2128;padding:2px 6px;border-radius:4px;font-size:13px}
+.login-box{max-width:400px;margin:100px auto;padding:24px;background:#161b22;border:1px solid #30363d;border-radius:6px}
+.login-box h1{text-align:center;margin-bottom:24px}
+.login-box .form-group input{font-size:16px}
+pre{background:#1c2128;padding:12px;border-radius:6px;overflow-x:auto;font-size:13px}
+.inline-flex{display:flex;gap:8px;align-items:center}
+</style>
+</head>
+<body>
+<nav>
+<span class="brand">Trout</span>
+<a href="/admin/">Dashboard</a>
+<a href="/admin/challenges">Challenges</a>
+<a href="/admin/settings/ctfd">CTFd</a>
+<a href="/admin/settings/discord">Discord</a>
+<a href="/admin/logs">Logs</a>
+<a href="/admin/login" style="margin-left:auto">Login</a>
+</nav>
+<div class="container">
+{{if .Flash}}<div class="flash flash-{{.FlashType}}">{{.Flash}}</div>{{end}}
+{{block "content" .}}{{end}}
+</div>
+</body>
+</html>

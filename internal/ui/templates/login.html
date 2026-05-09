@@ -1,0 +1,13 @@
+{{define "title"}}Login{{end}}
+{{define "content"}}
+<div class="login-box">
+<h1>Login</h1>
+<form method="POST" action="/admin/login">
+<div class="form-group">
+<label>Password</label>
+<input type="password" name="password" required autofocus>
+</div>
+<button type="submit" class="btn btn-primary" style="width:100%">Login</button>
+</form>
+</div>
+{{end}}

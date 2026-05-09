@@ -1,0 +1,41 @@
+{{define "title"}}Dashboard{{end}}
+{{define "content"}}
+<h1>Dashboard</h1>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+<div class="card">
+<h3>Challenges</h3>
+<div style="font-size:36px;font-weight:700">{{.ChallengeCount}}</div>
+</div>
+<div class="card">
+<h3>Active Listeners</h3>
+<div style="font-size:36px;font-weight:700">{{.ActiveListeners}}</div>
+</div>
+<div class="card">
+<h3>CTFd</h3>
+<div style="font-size:14px;margin-top:8px">
+<span class="status-badge {{if eq .CTFdStatus "enterprise"}}status-on{{else}}status-off{{end}}">
+{{.CTFdStatus}}
+</span>
+</div>
+</div>
+</div>
+
+<h2>Recent Events</h2>
+{{if .Events}}
+<table>
+<thead><tr><th>Time</th><th>Type</th><th>Source</th><th>Payload</th></tr></thead>
+<tbody>
+{{range .Events}}
+<tr>
+<td>{{.Time}}</td>
+<td><code>{{.Type}}</code></td>
+<td>{{.Source}}</td>
+<td><code>{{.Payload}}</code></td>
+</tr>
+{{end}}
+</tbody>
+</table>
+{{else}}
+<p style="color:#8b949e">No events yet.</p>
+{{end}}
+{{end}}

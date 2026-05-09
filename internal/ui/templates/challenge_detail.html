@@ -1,0 +1,56 @@
+{{define "title"}}{{.Challenge.Name}}{{end}}
+{{define "content"}}
+<div class="inline-flex" style="justify-content:space-between">
+<h1>{{.Challenge.Name}}</h1>
+<div class="inline-flex">
+<a href="/admin/challenges/{{.Challenge.ID}}/edit" class="btn">Edit</a>
+{{if .Running}}
+<form method="POST" action="/admin/challenges/{{.Challenge.ID}}/toggle" style="display:inline">
+<button class="btn btn-danger" type="submit">Stop</button>
+</form>
+{{else}}
+<form method="POST" action="/admin/challenges/{{.Challenge.ID}}/toggle" style="display:inline">
+<button class="btn btn-primary" type="submit">Start</button>
+</form>
+{{end}}
+<form method="POST" action="/admin/challenges/{{.Challenge.ID}}/delete" style="display:inline" onsubmit="return confirm('Delete this challenge?')">
+<button class="btn btn-danger" type="submit">Delete</button>
+</form>
+</div>
+</div>
+
+<div class="card">
+<table>
+<tr><th style="width:140px">ID</th><td><code>{{.Challenge.ID}}</code></td></tr>
+<tr><th>Port</th><td>{{.Challenge.NetcatPort}}</td></tr>
+<tr><th>Base Flag</th><td><code>{{.Challenge.BaseFlag}}</code></td></tr>
+<tr><th>Status</th><td><span class="status-badge {{if .Running}}status-on{{else}}status-off{{end}}">{{if .Running}}Running{{else}}Stopped{{end}}</span></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Questions</h3>
+{{if .Questions}}
+<ol style="margin-left:20px">
+{{range .Questions}}
+<li><strong>{{.Q}}</strong> &mdash; <code>{{.A}}</code></li>
+{{end}}
+</ol>
+{{else}}
+<p style="color:#8b949e">No questions.</p>
+{{end}}
+</div>
+
+{{if .LeetRules}}
+<div class="card">
+<h3>Leet Rules Override</h3>
+<pre>{{.LeetRules}}</pre>
+</div>
+{{end}}
+
+<div class="card">
+<h3>Internal API Usage</h3>
+<p style="font-size:14px">Challenge authors can fetch flags for users via the internal API:</p>
+<pre>curl http://127.0.0.1:9125/internal/flag?user_id=42&challenge_id={{.Challenge.ID}}</pre>
+</div>
+{{end}}
