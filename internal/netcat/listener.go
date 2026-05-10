@@ -10,6 +10,17 @@ type listener struct {
 	cancel context.CancelFunc
 	ln     net.Listener
 	cfg    ChallengeConfig
+	sem    chan struct{}
+}
+
+func newListener(ctx context.Context, cancel context.CancelFunc, ln net.Listener, cfg ChallengeConfig, maxConns int) *listener {
+	return &listener{
+		ctx:    ctx,
+		cancel: cancel,
+		ln:     ln,
+		cfg:    cfg,
+		sem:    make(chan struct{}, maxConns),
+	}
 }
 
 func (l *listener) serve(m *Manager) {
@@ -24,6 +35,15 @@ func (l *listener) serve(m *Manager) {
 				continue
 			}
 		}
-		go handleSession(conn, l.cfg, m)
+		select {
+		case l.sem <- struct{}{}:
+			go func() {
+				defer func() { <-l.sem }()
+				handleSession(conn, l.cfg, m)
+			}()
+		default:
+			conn.Close()
+			m.log.Warn("connection limit reached, dropped")
+		}
 	}
 }

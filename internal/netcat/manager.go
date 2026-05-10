@@ -69,18 +69,13 @@ func (m *Manager) Start(challenge config.Challenge) error {
 		return fmt.Errorf("listen port %d: %w", challenge.NetcatPort, err)
 	}
 
-	l := &listener{
-		ctx:    ctx,
-		cancel: cancel,
-		ln:     ln,
-		cfg: ChallengeConfig{
-			ID:        challenge.ID,
-			Name:      challenge.Name,
-			Questions: questions,
-			BaseFlag:  challenge.BaseFlag,
-			LeetRules: challenge.LeetRules,
-		},
-	}
+	l := newListener(ctx, cancel, ln, ChallengeConfig{
+		ID:        challenge.ID,
+		Name:      challenge.Name,
+		Questions: questions,
+		BaseFlag:  challenge.BaseFlag,
+		LeetRules: challenge.LeetRules,
+	}, 100)
 
 	m.listeners[challenge.ID] = l
 	go l.serve(m)
