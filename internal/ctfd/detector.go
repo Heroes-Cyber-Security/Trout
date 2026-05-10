@@ -2,8 +2,8 @@ package ctfd
 
 import (
 	"fmt"
-	"io"
 	"net/http"
+	"net/url"
 )
 
 const (
@@ -26,6 +26,11 @@ func (d *Detector) Detect() (string, error) {
 		return EditionUnknown, nil
 	}
 
+	parsed, err := url.Parse(d.baseURL)
+	if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+		return EditionUnknown, fmt.Errorf("invalid ctfd url: must be https")
+	}
+
 	req, err := http.NewRequest(http.MethodGet, d.baseURL+"/api/v1/webhooks", nil)
 	if err != nil {
 		return EditionUnknown, fmt.Errorf("create request: %w", err)
@@ -46,6 +51,5 @@ func (d *Detector) Detect() (string, error) {
 		return EditionOpenSource, nil
 	}
 
-	body, _ := io.ReadAll(resp.Body)
-	return EditionUnknown, fmt.Errorf("unexpected response %d: %s", resp.StatusCode, string(body))
+	return EditionUnknown, fmt.Errorf("unexpected response status: %d", resp.StatusCode)
 }
