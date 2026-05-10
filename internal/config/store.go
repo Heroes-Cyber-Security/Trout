@@ -133,6 +133,14 @@ func (s *Store) migrate() error {
 	return nil
 }
 
+func (s *Store) maybeDecrypt(v string) string {
+	dec, err := decrypt(v, s.key)
+	if err != nil {
+		return v
+	}
+	return dec
+}
+
 func (s *Store) ListChallenges() ([]Challenge, error) {
 	rows, err := s.db.Query(`
 		SELECT id, name, description, base_flag, leet_rules, questions,
@@ -155,6 +163,7 @@ func (s *Store) ListChallenges() ([]Challenge, error) {
 			return nil, fmt.Errorf("scan challenge: %w", err)
 		}
 		c.Enabled = enabled != 0
+		c.BaseFlag = s.maybeDecrypt(c.BaseFlag)
 		c.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created)
 		c.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated)
 		out = append(out, c)
@@ -180,13 +189,18 @@ func (s *Store) GetChallenge(id string) (*Challenge, error) {
 		return nil, fmt.Errorf("get challenge: %w", err)
 	}
 	c.Enabled = enabled != 0
+	c.BaseFlag = s.maybeDecrypt(c.BaseFlag)
 	c.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created)
 	c.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated)
 	return &c, nil
 }
 
 func (s *Store) UpsertChallenge(c Challenge) error {
-	_, err := s.db.Exec(`
+	encBaseFlag, err := encrypt([]byte(c.BaseFlag), s.key)
+	if err != nil {
+		return fmt.Errorf("encrypt base flag: %w", err)
+	}
+	_, err = s.db.Exec(`
 		INSERT INTO challenges (id, name, description, base_flag, leet_rules, questions, netcat_port, enabled, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
 		ON CONFLICT(id) DO UPDATE SET
@@ -194,7 +208,7 @@ func (s *Store) UpsertChallenge(c Challenge) error {
 			base_flag=excluded.base_flag, leet_rules=excluded.leet_rules,
 			questions=excluded.questions, netcat_port=excluded.netcat_port,
 			enabled=excluded.enabled, updated_at=excluded.updated_at
-	`, c.ID, c.Name, c.Description, c.BaseFlag, c.LeetRules,
+	`, c.ID, c.Name, c.Description, encBaseFlag, c.LeetRules,
 		c.Questions, c.NetcatPort, boolInt(c.Enabled))
 	if err != nil {
 		return fmt.Errorf("upsert challenge: %w", err)
