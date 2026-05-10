@@ -1,47 +1,47 @@
 {{define "title"}}Challenges{{end}}
 {{define "content"}}
-<div class="inline-flex" style="justify-content:space-between">
-<h1>Challenges</h1>
-<a href="/admin/challenges/new" class="btn btn-primary">+ New Challenge</a>
-</div>
+  <div class="inline-flex" style="justify-content:space-between">
+    <h1>Challenges</h1>
+    <a href="/admin/challenges/new" class="btn btn-primary">+ New Challenge</a>
+  </div>
 
-{{if .Challenges}}
-<table>
-<thead><tr><th>ID</th><th>Name</th><th>Port</th><th>Questions</th><th>Status</th><th>Actions</th></tr></thead>
-<tbody>
-{{range .Challenges}}
-<tr>
-<td><code>{{.ID}}</code></td>
-<td>{{.Name}}</td>
-<td>{{.NetcatPort}}</td>
-<td>{{.QuestionCount}}</td>
-<td>
-<span class="status-badge {{if .Enabled}}status-on{{else}}status-off{{end}}">
-{{if .Enabled}}Running{{else}}Stopped{{end}}
-</span>
-</td>
-<td>
-<div class="inline-flex">
-<a href="/admin/challenges/{{.ID}}" class="btn">View</a>
-{{if .Enabled}}
-<form method="POST" action="/admin/challenges/{{.ID}}/toggle" style="display:inline">
-<button class="btn btn-danger" type="submit">Stop</button>
-</form>
-{{else}}
-<form method="POST" action="/admin/challenges/{{.ID}}/toggle" style="display:inline">
-<button class="btn btn-primary" type="submit">Start</button>
-</form>
-{{end}}
-<form method="POST" action="/admin/challenges/{{.ID}}/delete" style="display:inline" onsubmit="return confirm('Delete this challenge?')">
-<button class="btn btn-danger" type="submit">Delete</button>
-</form>
-</div>
-</td>
-</tr>
-{{end}}
-</tbody>
-</table>
-{{else}}
-<p style="color:#8b949e">No challenges configured.</p>
-{{end}}
+  {{if .Challenges}}
+    <table>
+      <thead><tr><th>ID</th><th>Name</th><th>Port</th><th>Questions</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {{range .Challenges}}
+          <tr>
+            <td><code>{{.ID}}</code></td>
+            <td>{{.Name}}</td>
+            <td>{{.NetcatPort}}</td>
+            <td>{{.QuestionCount}}</td>
+            <td>
+              <span class="status-badge {{if .Enabled}}status-on{{else}}status-off{{end}}">
+                {{if .Enabled}}Running{{else}}Stopped{{end}}
+              </span>
+            </td>
+            <td>
+              <div class="inline-flex">
+                <a href="/admin/challenges/{{.ID}}" class="btn">View</a>
+                {{if .Enabled}}
+                  <form method="POST" action="/admin/challenges/{{.ID}}/toggle" style="display:inline">
+                    <button class="btn btn-danger" type="submit">Stop</button>
+                  </form>
+                {{else}}
+                  <form method="POST" action="/admin/challenges/{{.ID}}/toggle" style="display:inline">
+                    <button class="btn btn-primary" type="submit">Start</button>
+                  </form>
+                {{end}}
+                <form method="POST" action="/admin/challenges/{{.ID}}/delete" style="display:inline" onsubmit="return confirm('Delete this challenge?')">
+                  <button class="btn btn-danger" type="submit">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {{end}}
+      </tbody>
+    </table>
+  {{else}}
+    <p style="color:#8b949e">No challenges configured.</p>
+  {{end}}
 {{end}}
