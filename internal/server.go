@@ -105,6 +105,8 @@ func (s *Server) MainHandler() http.Handler {
 			s.Admin.ToggleChallenge(w, r)
 		case strings.HasSuffix(path, "/delete"):
 			s.Admin.DeleteChallenge(w, r)
+		case strings.Count(strings.TrimPrefix(path, "/admin/challenges/"), "/") == 0 && r.Method == http.MethodPost:
+			s.Admin.UpdateChallenge(w, r)
 		case strings.Count(strings.TrimPrefix(path, "/admin/challenges/"), "/") == 0:
 			s.Admin.ViewChallenge(w, r)
 		case path == "/admin/settings/ctfd":

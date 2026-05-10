@@ -382,6 +382,7 @@ func (h *AdminHandler) Logs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AdminHandler) parseChallengeForm(r *http.Request) config.Challenge {
+	port, _ := strconv.Atoi(r.FormValue("netcat_port"))
 	return config.Challenge{
 		ID:          r.FormValue("id"),
 		Name:        r.FormValue("name"),
@@ -389,6 +390,7 @@ func (h *AdminHandler) parseChallengeForm(r *http.Request) config.Challenge {
 		BaseFlag:    r.FormValue("base_flag"),
 		LeetRules:   r.FormValue("leet_rules"),
 		Questions:   r.FormValue("questions"),
+		NetcatPort:  port,
 		Enabled:     r.FormValue("enabled") == "1",
 	}
 }
