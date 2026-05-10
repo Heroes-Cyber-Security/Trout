@@ -46,16 +46,19 @@ func (h *SubmissionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.secret != "" {
-		sig := r.Header.Get("X-Trout-Signature")
-		if sig == "" {
-			http.Error(w, "missing signature", http.StatusUnauthorized)
-			return
-		}
-		if !verifyHMAC(body, sig, h.secret) {
-			http.Error(w, "invalid signature", http.StatusUnauthorized)
-			return
-		}
+	if h.secret == "" {
+		h.log.Error("webhook secret is not configured, rejecting submission")
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+	sig := r.Header.Get("X-Trout-Signature")
+	if sig == "" {
+		http.Error(w, "missing signature", http.StatusUnauthorized)
+		return
+	}
+	if !verifyHMAC(body, sig, h.secret) {
+		http.Error(w, "invalid signature", http.StatusUnauthorized)
+		return
 	}
 
 	var payload SubmissionPayload

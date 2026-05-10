@@ -79,12 +79,15 @@ func (h *WebhookHandler) handleEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.secret != "" {
-		if err := verifySignature(sigHeader, body, h.secret); err != nil {
-			h.log.Warn("invalid signature", "error", err)
-			http.Error(w, "invalid signature", http.StatusUnauthorized)
-			return
-		}
+	if h.secret == "" {
+		h.log.Error("webhook secret is not configured, rejecting event")
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+	if err := verifySignature(sigHeader, body, h.secret); err != nil {
+		h.log.Warn("invalid signature", "error", err)
+		http.Error(w, "invalid signature", http.StatusUnauthorized)
+		return
 	}
 
 	var payload SubmissionPayload
