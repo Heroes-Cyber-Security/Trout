@@ -68,7 +68,6 @@ func (h *AdminHandler) Login(w http.ResponseWriter, r *http.Request) {
 		pass := r.FormValue("password")
 		if subtle.ConstantTimeCompare([]byte(pass), []byte(h.password)) == 1 {
 			w.Header().Set("WWW-Authenticate", `Basic realm="Trout Admin"`)
-			w.Header().Set("Set-Cookie", "admin_session=1; path=/admin/")
 			http.Redirect(w, r, "/admin/", http.StatusSeeOther)
 			return
 		}
