@@ -61,7 +61,7 @@ func New(store *config.Store, adminPassword string) *Server {
 		return c.BaseFlag, true
 	}
 
-	internalH := api.NewInternal(genFlagFn, chalLookup)
+	internalH := api.NewInternal(genFlagFn, chalLookup, ctfdCfg.WebhookSecret)
 
 	ctfdWH := ctfd.NewWebhookHandler(ctfdCfg.WebhookSecret, notifyFn)
 

@@ -15,13 +15,15 @@ type ChallengeLookup func(id string) (baseFlag string, ok bool)
 type InternalHandler struct {
 	genFlag  FlagGenerator
 	lookup   ChallengeLookup
+	apiKey   string
 	log      *slog.Logger
 }
 
-func NewInternal(genFlag FlagGenerator, lookup ChallengeLookup) *InternalHandler {
+func NewInternal(genFlag FlagGenerator, lookup ChallengeLookup, apiKey string) *InternalHandler {
 	return &InternalHandler{
 		genFlag: genFlag,
 		lookup:  lookup,
+		apiKey:  apiKey,
 		log:     slog.With("component", "internal_api"),
 	}
 }
@@ -45,6 +47,11 @@ func (h *InternalHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !ip.IsLoopback() && !ip.IsPrivate() {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+
+	if r.Header.Get("X-Internal-Api-Key") != h.apiKey {
 		http.Error(w, "forbidden", http.StatusForbidden)
 		return
 	}
