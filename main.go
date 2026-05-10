@@ -18,15 +18,11 @@ func main() {
 	dbPath := flag.String("db", "trout.db", "path to sqlite database")
 	httpAddr := flag.String("http-addr", ":8080", "address for admin ui and webhooks")
 	internalAddr := flag.String("internal-addr", "127.0.0.1:9125", "address for internal flag api")
-	adminPassword := flag.String("admin-password", "", "password for admin ui (or TROUT_ADMIN_PASSWORD env)")
 	flag.Parse()
 
-	pass := *adminPassword
+	pass := os.Getenv("TROUT_ADMIN_PASSWORD")
 	if pass == "" {
-		pass = os.Getenv("TROUT_ADMIN_PASSWORD")
-	}
-	if pass == "" {
-		slog.Error("admin password required via --admin-password or TROUT_ADMIN_PASSWORD env")
+		slog.Error("admin password required via TROUT_ADMIN_PASSWORD env")
 		os.Exit(1)
 	}
 
