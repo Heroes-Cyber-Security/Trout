@@ -4,12 +4,14 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"hcs.ctf/trout/internal/api"
 	"hcs.ctf/trout/internal/config"
 	"hcs.ctf/trout/internal/ctfd"
 	"hcs.ctf/trout/internal/discord"
 	"hcs.ctf/trout/internal/flag"
+	"hcs.ctf/trout/internal/middleware"
 	"hcs.ctf/trout/internal/netcat"
 	"hcs.ctf/trout/internal/ui"
 )
@@ -84,7 +86,8 @@ func (s *Server) MainHandler() http.Handler {
 
 	auth := s.Admin.AuthMiddleware
 
-	mux.HandleFunc("/admin/login", s.Admin.Login)
+	loginLimiter := middleware.NewRateLimiter(10, time.Minute)
+	mux.Handle("/admin/login", loginLimiter.Middleware(http.HandlerFunc(s.Admin.Login)))
 	mux.Handle("/admin/", auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 		switch {
@@ -123,7 +126,8 @@ func (s *Server) MainHandler() http.Handler {
 
 func (s *Server) InternalHandler() http.Handler {
 	mux := http.NewServeMux()
-	mux.Handle("/internal/flag", s.Internal)
+	flagLimiter := middleware.NewRateLimiter(60, time.Minute)
+	mux.Handle("/internal/flag", flagLimiter.Middleware(s.Internal))
 	return mux
 }
 
