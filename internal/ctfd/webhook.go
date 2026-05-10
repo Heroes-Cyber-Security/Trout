@@ -57,7 +57,7 @@ func (h *WebhookHandler) handleVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mac := hmac.New(sha256.New, []byte(h.secret))
-	mac.Write([]byte(token))
+	mac.Write([]byte("verify:" + token))
 	sig := hex.EncodeToString(mac.Sum(nil))
 
 	w.Header().Set("Content-Type", "application/json")
