@@ -43,6 +43,10 @@ func New(store *config.Store, adminPassword string) *Server {
 	ctfdCfg, _ := store.GetCTFdConfig()
 	ctfdClient := ctfd.New(ctfdCfg.URL, ctfdCfg.APIKey)
 
+	if ctfdCfg.WebhookSecret == "" {
+		log.Warn("webhook secret is empty, HMAC verification disabled on webhook and submission endpoints")
+	}
+
 	verifyFn := func(token string) (int, error) {
 		return ctfdClient.VerifyToken(token)
 	}
