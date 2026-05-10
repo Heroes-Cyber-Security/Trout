@@ -5,16 +5,16 @@ import (
 )
 
 func TestSeedDeterministic(t *testing.T) {
-	s1 := Seed(42, "web-xss")
-	s2 := Seed(42, "web-xss")
+	s1 := Seed(42, "web-xss", nil)
+	s2 := Seed(42, "web-xss", nil)
 	if string(s1) != string(s2) {
 		t.Fatal("seed must be deterministic")
 	}
 }
 
 func TestSeedDifferent(t *testing.T) {
-	s1 := Seed(42, "web-xss")
-	s2 := Seed(43, "web-xss")
+	s1 := Seed(42, "web-xss", nil)
+	s2 := Seed(43, "web-xss", nil)
 	if string(s1) == string(s2) {
 		t.Fatal("different users must produce different seeds")
 	}
@@ -22,7 +22,7 @@ func TestSeedDifferent(t *testing.T) {
 
 func TestGeneratePreservesNonLetters(t *testing.T) {
 	base := "X{X_123!}"
-	seed := Seed(1, "test")
+	seed := Seed(1, "test", nil)
 	result := Generate(base, seed, nil)
 	if result[1:2] != "{" {
 		t.Fatalf("expected { preserved, got %s", result[1:2])

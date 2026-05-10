@@ -20,8 +20,9 @@ var defaultLeet = map[byte][]string{
 	'z': {"2", "Z"},      'Z': {"2", "z"},
 }
 
-func Seed(userID int, challengeID string) []byte {
-	h := sha256.Sum256([]byte(fmt.Sprintf("%d:%s", userID, challengeID)))
+func Seed(userID int, challengeID string, serverSecret []byte) []byte {
+	input := append(serverSecret, []byte(fmt.Sprintf("%d:%s", userID, challengeID))...)
+	h := sha256.Sum256(input)
 	return h[:]
 }
 

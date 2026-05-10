@@ -46,7 +46,7 @@ func New(store *config.Store, adminPassword string) *Server {
 	}
 
 	genFlagFn := func(baseFlag string, userID int, challengeID string) string {
-		return flag.Generate(baseFlag, flag.Seed(userID, challengeID), nil)
+		return flag.Generate(baseFlag, flag.Seed(userID, challengeID, []byte(adminPassword)), nil)
 	}
 
 	ncMgr := netcat.NewManager(store, verifyFn, genFlagFn, logEventFn, notifyFn)
