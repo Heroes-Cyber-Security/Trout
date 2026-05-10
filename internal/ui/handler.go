@@ -312,6 +312,12 @@ func (h *AdminHandler) DiscordSettings(w http.ResponseWriter, r *http.Request) {
 			h.renderError(w, r, "Invalid webhook URL: must be https")
 			return
 		}
+		if !strings.HasSuffix(parsed.Host, ".discord.com") &&
+			!strings.HasSuffix(parsed.Host, ".discordapp.com") &&
+			!strings.HasSuffix(parsed.Host, ".discord.media") {
+			h.renderError(w, r, "Invalid webhook URL: must be a Discord webhook")
+			return
+		}
 		eventType := r.FormValue("event_type")
 		h.store.AddDiscordWebhook(config.DiscordWebhook{
 			URL: rawURL, EventType: eventType, Enabled: true,
