@@ -25,7 +25,7 @@ jobs:
           ext=""
           if [ "${{ matrix.goos }}" = "windows" ]; then ext=".exe"; fi
           CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
-            go build -o trout-${{ matrix.goos }}-${{ matrix.goarch }}${ext} .
+            go build -ldflags="-s -w" -o trout-${{ matrix.goos }}-${{ matrix.goarch }}${ext} .
       - uses: softprops/action-gh-release@v2
         with:
           files: trout-*
