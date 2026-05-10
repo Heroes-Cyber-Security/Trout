@@ -104,14 +104,16 @@ func (s *Server) MainHandler() http.Handler {
 			s.Admin.DeleteChallenge(w, r)
 		case strings.Count(strings.TrimPrefix(path, "/admin/challenges/"), "/") == 0:
 			s.Admin.ViewChallenge(w, r)
+		case path == "/admin/settings/ctfd":
+			s.Admin.CTFdSettings(w, r)
+		case path == "/admin/settings/discord":
+			s.Admin.DiscordSettings(w, r)
+		case path == "/admin/logs":
+			s.Admin.Logs(w, r)
 		default:
 			http.NotFound(w, r)
 		}
 	})))
-
-	mux.HandleFunc("/admin/settings/ctfd", s.Admin.CTFdSettings)
-	mux.HandleFunc("/admin/settings/discord", s.Admin.DiscordSettings)
-	mux.HandleFunc("/admin/logs", s.Admin.Logs)
 
 	mux.Handle("/ctfd/webhook", s.CTFdWH)
 	mux.Handle("/api/v1/submissions", s.SubAPI)
