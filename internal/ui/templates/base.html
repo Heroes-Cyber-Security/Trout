@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trout - {{block "title" .}}Dashboard{{end}}</title>
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trout - {{block "title" .}}Dashboard{{end}}</title>
+  <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}
 nav{background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:flex;gap:24px;align-items:center}
@@ -47,17 +47,17 @@ pre{background:#1c2128;padding:12px;border-radius:6px;overflow-x:auto;font-size:
 </head>
 <body>
 <nav>
-<span class="brand">Trout</span>
-<a href="/admin/">Dashboard</a>
-<a href="/admin/challenges">Challenges</a>
-<a href="/admin/settings/ctfd">CTFd</a>
-<a href="/admin/settings/discord">Discord</a>
-<a href="/admin/logs">Logs</a>
-<a href="/admin/login" style="margin-left:auto">Login</a>
+  <span class="brand">Trout</span>
+  <a href="/admin/">Dashboard</a>
+  <a href="/admin/challenges">Challenges</a>
+  <a href="/admin/settings/ctfd">CTFd</a>
+  <a href="/admin/settings/discord">Discord</a>
+  <a href="/admin/logs">Logs</a>
+  <a href="/admin/login" style="margin-left:auto">Login</a>
 </nav>
 <div class="container">
-{{if .Flash}}<div class="flash flash-{{.FlashType}}">{{.Flash}}</div>{{end}}
-{{block "content" .}}{{end}}
+  {{if .Flash}}<div class="flash flash-{{.FlashType}}">{{.Flash}}</div>{{end}}
+  {{block "content" .}}{{end}}
 </div>
 </body>
 </html>
