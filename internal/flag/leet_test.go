@@ -56,10 +56,10 @@ func TestGenerateWithOverrides(t *testing.T) {
 	for i := range seed {
 		seed[i] = 1
 	}
-	overrides := map[byte]string{'a': "9"}
+	overrides := map[byte][]string{'a': {"9"}}
 	result := Generate(base, seed, overrides)
-	if result != "X{X{9}" {
-		t.Fatalf("expected X{{X{{9}} with override, got %s", result)
+	if result != "x{x{9}" {
+		t.Fatalf("expected x{{x{{9}} with override, got %s", result)
 	}
 }
 
@@ -79,7 +79,7 @@ func TestGeneratePreservesNumbers(t *testing.T) {
 		seed[i] = 1
 	}
 	result := Generate(base, seed, nil)
-	expected := "XXX{1234567890}"
+	expected := "xxx{1234567890}"
 	if result != expected {
 		t.Fatalf("numbers must be preserved, got %s", result)
 	}

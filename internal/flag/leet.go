@@ -5,17 +5,19 @@ import (
 	"fmt"
 )
 
-var defaultLeet = map[byte]string{
-	'a': "4", 'A': "4",
-	'b': "8", 'B': "8",
-	'e': "3", 'E': "3",
-	'g': "9", 'G': "9",
-	'i': "1", 'I': "1",
-	'l': "1", 'L': "1",
-	'o': "0", 'O': "0",
-	's': "5", 'S': "5",
-	't': "7", 'T': "7",
-	'z': "2", 'Z': "2",
+var defaultLeet = map[byte][]string{
+	'a': {"4", "A", "@"}, 'A': {"4", "a", "@"},
+	'b': {"8", "B", "6"}, 'B': {"8", "b", "6"},
+	'c': {"(", "C", "<"}, 'C': {"(", "c", "<"},
+	'e': {"3", "E"},      'E': {"3", "e"},
+	'g': {"9", "G"},      'G': {"9", "g"},
+	'h': {"4", "H", "#"}, 'H': {"4", "h", "#"},
+	'i': {"1", "I", "!"}, 'I': {"1", "i", "!"},
+	'l': {"1", "L", "7"}, 'L': {"1", "l", "7"},
+	'o': {"0", "O"},      'O': {"0", "o"},
+	's': {"5", "S", "$"}, 'S': {"5", "s", "$"},
+	't': {"7", "T", "+"}, 'T': {"7", "t", "+"},
+	'z': {"2", "Z"},      'Z': {"2", "z"},
 }
 
 func Seed(userID int, challengeID string) []byte {
@@ -23,10 +25,10 @@ func Seed(userID int, challengeID string) []byte {
 	return h[:]
 }
 
-func Generate(baseFlag string, seed []byte, overrides map[byte]string) string {
+func Generate(baseFlag string, seed []byte, overrides map[byte][]string) string {
 	leet := defaultLeet
 	if overrides != nil {
-		leet = make(map[byte]string, len(defaultLeet)+len(overrides))
+		leet = make(map[byte][]string, len(defaultLeet)+len(overrides))
 		for k, v := range defaultLeet {
 			leet[k] = v
 		}
@@ -40,15 +42,18 @@ func Generate(baseFlag string, seed []byte, overrides map[byte]string) string {
 		c := baseFlag[i]
 		if isLetter(c) {
 			sb := seed[i%len(seed)]
-			r := sb % 3
+			r := sb % 4
 			if r == 0 {
 				out = append(out, c)
 			} else {
-				leetStr, ok := leet[c]
-				if !ok {
-					out = append(out, c)
+				leetOpts, ok := leet[c]
+				if ok {
+					idx := (int(sb) / 4) % len(leetOpts)
+					out = append(out, leetOpts[idx]...)
+				} else if c >= 'a' && c <= 'z' {
+					out = append(out, c-32)
 				} else {
-					out = append(out, leetStr...)
+					out = append(out, c+32)
 				}
 			}
 		} else {
