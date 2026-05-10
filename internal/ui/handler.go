@@ -47,6 +47,12 @@ func NewAdmin(store *config.Store, password string, ncManager interface {
 
 func (h *AdminHandler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
+			if r.Header.Get("Origin") == "" && r.Header.Get("Referer") == "" {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
+		}
 		user, pass, ok := r.BasicAuth()
 		if !ok || user != "admin" || subtle.ConstantTimeCompare([]byte(pass), []byte(h.password)) != 1 {
 			w.Header().Set("WWW-Authenticate", `Basic realm="Trout Admin"`)
