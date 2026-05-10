@@ -1,24 +1,24 @@
 {{define "title"}}Event Logs{{end}}
 {{define "content"}}
-<h1>Event Logs</h1>
-<div class="card">
-{{if .Events}}
-<table>
-<thead><tr><th>ID</th><th>Time</th><th>Type</th><th>Source</th><th>Payload</th></tr></thead>
-<tbody>
-{{range .Events}}
-<tr>
-<td>{{.ID}}</td>
-<td>{{.Time}}</td>
-<td><code>{{.Type}}</code></td>
-<td>{{.Source}}</td>
-<td><code>{{.Payload}}</code></td>
-</tr>
-{{end}}
-</tbody>
-</table>
-{{else}}
-<p style="color:#8b949e">No events logged yet.</p>
-{{end}}
-</div>
+  <h1>Event Logs</h1>
+  <div class="card">
+    {{if .Events}}
+      <table>
+        <thead><tr><th>ID</th><th>Time</th><th>Type</th><th>Source</th><th>Payload</th></tr></thead>
+        <tbody>
+          {{range .Events}}
+            <tr>
+              <td>{{.ID}}</td>
+              <td>{{.Time}}</td>
+              <td><code>{{.Type}}</code></td>
+              <td>{{.Source}}</td>
+              <td><code>{{.Payload}}</code></td>
+            </tr>
+          {{end}}
+        </tbody>
+      </table>
+    {{else}}
+      <p style="color:#8b949e">No events logged yet.</p>
+    {{end}}
+  </div>
 {{end}}
