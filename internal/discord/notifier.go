@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"time"
 
 	"hcs.ctf/trout/internal/config"
@@ -107,8 +108,12 @@ func (n *Notifier) Send(eventType string, fields map[string]string) {
 	}
 }
 
-func (n *Notifier) send(url string, body []byte) error {
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+func (n *Notifier) send(rawURL string, body []byte) error {
+	parsed, err := url.Parse(rawURL)
+	if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+		return fmt.Errorf("invalid webhook url")
+	}
+	req, err := http.NewRequest(http.MethodPost, rawURL, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
 	}

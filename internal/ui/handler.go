@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -299,10 +300,15 @@ func (h *AdminHandler) CTFdSettings(w http.ResponseWriter, r *http.Request) {
 
 func (h *AdminHandler) DiscordSettings(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		url := r.FormValue("url")
+		rawURL := r.FormValue("url")
+		parsed, err := url.Parse(rawURL)
+		if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+			h.renderError(w, r, "Invalid webhook URL: must be https")
+			return
+		}
 		eventType := r.FormValue("event_type")
 		h.store.AddDiscordWebhook(config.DiscordWebhook{
-			URL: url, EventType: eventType, Enabled: true,
+			URL: rawURL, EventType: eventType, Enabled: true,
 		})
 		http.Redirect(w, r, "/admin/settings/discord", http.StatusSeeOther)
 		return
