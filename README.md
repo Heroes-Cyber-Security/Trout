@@ -1,7 +1,7 @@
 <div>
 <img align="left" width="100" height="100" hspace="20" src="logo.png">
 <h3>Trout</h3>
-<span>Infrastructure-agnostic and DX-first CTF dynamic flag server for Jeopardy and AnD formats</span>
+<span>Infrastructure-agnostic and DX-first CTF dynamic flag server for<br/>Jeopardy and AnD formats</span>
 <br clear="left"/>
 </div>
 
