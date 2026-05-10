@@ -34,7 +34,7 @@ func main() {
 	slog.SetDefault(logger)
 
 	slog.Info("opening database", "path", *dbPath)
-	store, err := config.Open(*dbPath)
+	store, err := config.Open(*dbPath, pass)
 	if err != nil {
 		slog.Error("open database", "error", err)
 		os.Exit(1)

@@ -1,19 +1,72 @@
 package config
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"time"
 
 	_ "modernc.org/sqlite"
 )
 
 type Store struct {
-	db *sql.DB
+	db  *sql.DB
+	key []byte
 }
 
-func Open(path string) (*Store, error) {
+func deriveKey(password string) []byte {
+	h := sha256.Sum256([]byte("trout-enc:v1:" + password))
+	return h[:]
+}
+
+func encrypt(plaintext []byte, key []byte) (string, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", fmt.Errorf("new cipher: %w", err)
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", fmt.Errorf("new gcm: %w", err)
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", fmt.Errorf("nonce: %w", err)
+	}
+	ciphertext := gcm.Seal(nonce, nonce, plaintext, nil)
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
+}
+
+func decrypt(ciphertext string, key []byte) (string, error) {
+	data, err := base64.StdEncoding.DecodeString(ciphertext)
+	if err != nil {
+		return "", fmt.Errorf("decode: %w", err)
+	}
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", fmt.Errorf("new cipher: %w", err)
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", fmt.Errorf("new gcm: %w", err)
+	}
+	nonceSize := gcm.NonceSize()
+	if len(data) < nonceSize {
+		return "", fmt.Errorf("ciphertext too short")
+	}
+	plaintext, err := gcm.Open(nil, data[:nonceSize], data[nonceSize:], nil)
+	if err != nil {
+		return "", fmt.Errorf("decrypt: %w", err)
+	}
+	return string(plaintext), nil
+}
+
+func Open(path string, password string) (*Store, error) {
 	db, err := sql.Open("sqlite", path)
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)
@@ -24,7 +77,7 @@ func Open(path string) (*Store, error) {
 	if _, err := db.Exec("PRAGMA foreign_keys=ON"); err != nil {
 		return nil, fmt.Errorf("enable fk: %w", err)
 	}
-	s := &Store{db: db}
+	s := &Store{db: db, key: deriveKey(password)}
 	if err := s.migrate(); err != nil {
 		return nil, fmt.Errorf("migrate: %w", err)
 	}
@@ -166,7 +219,8 @@ func (s *Store) GetCTFdConfig() (*CTFdConfig, error) {
 	var cfg CTFdConfig
 	var installed int
 	var updated string
-	if err := row.Scan(&cfg.ID, &cfg.URL, &cfg.APIKey, &cfg.WebhookSecret,
+	var encAPIKey, encWebhookSecret string
+	if err := row.Scan(&cfg.ID, &cfg.URL, &encAPIKey, &encWebhookSecret,
 		&cfg.DetectedEdition, &installed, &cfg.PollIntervalSec,
 		&updated); err != nil {
 		if err == sql.ErrNoRows {
@@ -178,12 +232,42 @@ func (s *Store) GetCTFdConfig() (*CTFdConfig, error) {
 		}
 		return nil, fmt.Errorf("get ctfd config: %w", err)
 	}
+	if encAPIKey != "" {
+		dec, err := decrypt(encAPIKey, s.key)
+		if err != nil {
+			return nil, fmt.Errorf("decrypt api key: %w", err)
+		}
+		cfg.APIKey = dec
+	}
+	if encWebhookSecret != "" {
+		dec, err := decrypt(encWebhookSecret, s.key)
+		if err != nil {
+			return nil, fmt.Errorf("decrypt webhook secret: %w", err)
+		}
+		cfg.WebhookSecret = dec
+	}
 	cfg.PluginInstalled = installed != 0
 	cfg.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated)
 	return &cfg, nil
 }
 
 func (s *Store) SaveCTFdConfig(cfg CTFdConfig) error {
+	encAPIKey := cfg.APIKey
+	if encAPIKey != "" {
+		enc, err := encrypt([]byte(encAPIKey), s.key)
+		if err != nil {
+			return fmt.Errorf("encrypt api key: %w", err)
+		}
+		encAPIKey = enc
+	}
+	encWebhookSecret := cfg.WebhookSecret
+	if encWebhookSecret != "" {
+		enc, err := encrypt([]byte(encWebhookSecret), s.key)
+		if err != nil {
+			return fmt.Errorf("encrypt webhook secret: %w", err)
+		}
+		encWebhookSecret = enc
+	}
 	_, err := s.db.Exec(`
 		INSERT INTO ctfd_config (id, url, api_key, webhook_secret, detected_edition,
 		                         plugin_installed, poll_interval_sec, updated_at)
@@ -195,7 +279,7 @@ func (s *Store) SaveCTFdConfig(cfg CTFdConfig) error {
 			plugin_installed=excluded.plugin_installed,
 			poll_interval_sec=excluded.poll_interval_sec,
 			updated_at=excluded.updated_at
-	`, cfg.URL, cfg.APIKey, cfg.WebhookSecret, cfg.DetectedEdition,
+	`, cfg.URL, encAPIKey, encWebhookSecret, cfg.DetectedEdition,
 		boolInt(cfg.PluginInstalled), cfg.PollIntervalSec)
 	if err != nil {
 		return fmt.Errorf("save ctfd config: %w", err)
