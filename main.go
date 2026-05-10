@@ -40,14 +40,22 @@ func main() {
 
 	mainMux := svr.MainHandler()
 	mainServer := &http.Server{
-		Addr:    *httpAddr,
-		Handler: mainMux,
+		Addr:              *httpAddr,
+		Handler:           mainMux,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
 
 	internalMux := svr.InternalHandler()
 	internalServer := &http.Server{
-		Addr:    *internalAddr,
-		Handler: internalMux,
+		Addr:              *internalAddr,
+		Handler:           internalMux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	svr.StartAllChallenges()
