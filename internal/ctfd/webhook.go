@@ -38,15 +38,15 @@ func NewWebhookHandler(secret string, notify func(eventType string, fields map[s
 }
 
 func (h *WebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		h.handleVerify(w, r)
-		return
-	}
 	if r.Method == http.MethodPost {
 		h.handleEvent(w, r)
 		return
 	}
 	http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+}
+
+func (h *WebhookHandler) VerifyHandler(w http.ResponseWriter, r *http.Request) {
+	h.handleVerify(w, r)
 }
 
 func (h *WebhookHandler) handleVerify(w http.ResponseWriter, r *http.Request) {

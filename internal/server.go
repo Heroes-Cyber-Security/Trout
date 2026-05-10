@@ -117,6 +117,8 @@ func (s *Server) MainHandler() http.Handler {
 			s.Admin.CTFdSettings(w, r)
 		case path == "/admin/settings/discord":
 			s.Admin.DiscordSettings(w, r)
+		case path == "/admin/settings/ctfd/verify":
+			s.CTFdWH.VerifyHandler(w, r)
 		case path == "/admin/logs":
 			s.Admin.Logs(w, r)
 		default:
