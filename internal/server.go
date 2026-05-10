@@ -27,7 +27,7 @@ type Server struct {
 	log      *slog.Logger
 }
 
-func New(store *config.Store, adminPassword string) *Server {
+func New(store *config.Store, adminPassword string, internalAPIKey string) *Server {
 	log := slog.With("component", "server")
 
 	disc := discord.New(store)
@@ -67,7 +67,7 @@ func New(store *config.Store, adminPassword string) *Server {
 		return c.BaseFlag, true
 	}
 
-	internalH := api.NewInternal(genFlagFn, chalLookup, ctfdCfg.WebhookSecret)
+	internalH := api.NewInternal(genFlagFn, chalLookup, internalAPIKey)
 
 	ctfdWH := ctfd.NewWebhookHandler(ctfdCfg.WebhookSecret, notifyFn)
 

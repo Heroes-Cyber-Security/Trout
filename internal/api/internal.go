@@ -55,6 +55,12 @@ func (h *InternalHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if h.apiKey == "" {
+		h.log.Error("internal api key is not configured, rejecting request")
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	clientIP := net.ParseIP(h.realIP(r))
 	if clientIP == nil || (!clientIP.IsLoopback() && !clientIP.IsPrivate()) {
 		http.Error(w, "forbidden", http.StatusForbidden)

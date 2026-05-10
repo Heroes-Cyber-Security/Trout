@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"flag"
 	"log/slog"
 	"net/http"
@@ -26,6 +28,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	internalAPIKey := os.Getenv("TROUT_INTERNAL_API_KEY")
+	if internalAPIKey == "" {
+		keyBytes := make([]byte, 32)
+		if _, err := rand.Read(keyBytes); err != nil {
+			slog.Error("generate internal api key", "error", err)
+			os.Exit(1)
+		}
+		internalAPIKey = hex.EncodeToString(keyBytes)
+		slog.Info("generated internal api key", "key", internalAPIKey)
+	}
+
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
@@ -36,7 +49,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	svr := internal.New(store, pass)
+	svr := internal.New(store, pass, internalAPIKey)
 
 	mainMux := svr.MainHandler()
 	mainServer := &http.Server{
