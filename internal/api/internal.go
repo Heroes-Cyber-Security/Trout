@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type FlagGenerator func(baseFlag string, userID int, challengeID string) string
@@ -28,25 +29,34 @@ func NewInternal(genFlag FlagGenerator, lookup ChallengeLookup, apiKey string) *
 	}
 }
 
+func (h *InternalHandler) realIP(r *http.Request) string {
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return ""
+	}
+	ip := net.ParseIP(host)
+	if ip == nil {
+		return ""
+	}
+	if ip.IsLoopback() || ip.IsPrivate() {
+		if fwd := r.Header.Get("X-Forwarded-For"); fwd != "" {
+			parts := strings.SplitN(fwd, ",", 2)
+			if clientIP := net.ParseIP(strings.TrimSpace(parts[0])); clientIP != nil {
+				return clientIP.String()
+			}
+		}
+	}
+	return ip.String()
+}
+
 func (h *InternalHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		http.Error(w, "bad remote addr", http.StatusBadRequest)
-		return
-	}
-
-	ip := net.ParseIP(host)
-	if ip == nil {
-		http.Error(w, "bad ip", http.StatusBadRequest)
-		return
-	}
-
-	if !ip.IsLoopback() && !ip.IsPrivate() {
+	clientIP := net.ParseIP(h.realIP(r))
+	if clientIP == nil || (!clientIP.IsLoopback() && !clientIP.IsPrivate()) {
 		http.Error(w, "forbidden", http.StatusForbidden)
 		return
 	}
